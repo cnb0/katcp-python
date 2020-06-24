@@ -58,7 +58,7 @@ setup(
         "ply",
         "future",
         "futures; python_version<'3'",
-        "tornado=6",
+        "tornado==6",
     ],
     zip_safe=False,
     test_suite="nose.collector",
