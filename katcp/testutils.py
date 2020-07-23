@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function
 from future import standard_library
 standard_library.install_aliases()  # noqa: E402
 
-from future.utils import bytes_to_native_str
 
 import functools
 import logging
@@ -30,7 +29,7 @@ import tornado.locks
 import tornado.testing
 from _thread import get_ident
 from tornado.concurrent import Future as tornado_Future
-from future.utils import native_str_to_bytes
+from future.utils import native_str_to_bytes, bytes_to_native_str
 
 from katcp import client
 
