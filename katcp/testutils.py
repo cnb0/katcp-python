@@ -10,6 +10,8 @@ from __future__ import absolute_import, division, print_function
 from future import standard_library
 standard_library.install_aliases()  # noqa: E402
 
+from future.utils import bytes_to_native_str
+
 import functools
 import logging
 import queue
@@ -335,8 +337,7 @@ class BlockingTestClient(client.BlockingClient):
         except ValueError as e:
             self.test.fail("Could not convert value %r of sensor '%s' to type "
                            "%s: %s" % (value, sensorname, typestr, e))
-
-        self.test.assertTrue(status in Sensor.STATUSES.values(),
+        self.test.assertTrue(bytes_to_native_str(status) in Sensor.STATUSES.values(),
                              "Got invalid status value %r for sensor '%s'."
                              % (status, sensorname))
 
