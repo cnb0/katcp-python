@@ -29,7 +29,7 @@ import tornado.locks
 import tornado.testing
 from _thread import get_ident
 from tornado.concurrent import Future as tornado_Future
-from future.utils import native_str_to_bytes, bytes_to_native_str
+from future.utils import native_str_to_bytes, bytes_to_native_str  # noqa: E402
 
 from katcp import client
 
@@ -58,6 +58,7 @@ class ClientConnectionTest(object):
     Records all messages.
 
     """
+
     def __init__(self):
         self.messages = []
         self.mass_informs = []
@@ -82,6 +83,7 @@ class ClientConnectionTest(object):
 
 class TestLogHandler(logging.Handler):
     """A logger for KATCP tests."""
+
     def __init__(self):
         """Create a TestLogHandler."""
         logging.Handler.__init__(self)
@@ -98,6 +100,7 @@ class TestLogHandler(logging.Handler):
 
 class DeviceTestSensor(Sensor):
     """Test sensor."""
+
     def __init__(self, sensor_type, name, description, units, params,
                  timestamp, status, value):
         super(DeviceTestSensor, self).__init__(
@@ -127,6 +130,7 @@ class MessageRecorder(object):
         precedence.
 
     """
+
     def __init__(self, msg_types, whitelist, regex_filter, blacklist):
         self.msgs = []
         self.msg_types = msg_types
@@ -172,7 +176,7 @@ class MessageRecorder(object):
             elapsed_time = time.time() - start_time
             if elapsed_time >= timeout:
                 return None
-            self.msg_received.wait(timeout=timeout-elapsed_time)
+            self.msg_received.wait(timeout=timeout - elapsed_time)
 
     def append_msg(self, msg):
         """Append a message if it matches the criteria."""
@@ -200,6 +204,7 @@ class MessageRecorder(object):
 
 class BlockingTestClient(client.BlockingClient):
     """Test blocking client."""
+
     def __init__(self, test, *args, **kwargs):
         """Takes a TestCase class as an additional parameter."""
         self.test = test
@@ -524,7 +529,6 @@ class BlockingTestClient(client.BlockingClient):
         msg = (msg or '') + ': timed out after {}s'.format(timeout)
         self.assert_sensors_equal(sensor_tuples, msg)
 
-
     def assert_sensors_equal(self, sensor_tuples, msg=None):
         """Assert that the values of several sensors are equal to given values.
 
@@ -572,7 +576,7 @@ class BlockingTestClient(client.BlockingClient):
         t0 = time.time()
         poll_period = kwargs.pop('poll_period', 0.02)
         cond = predicate(*args, **kwargs)
-        while not (cond or (time.time()-t0 >timeout)):
+        while not (cond or (time.time() - t0 > timeout)):
             time.sleep(poll_period)
             cond = predicate(*args, **kwargs)
         return (cond, '' if cond else 'Timed out after %s seconds' % timeout)
@@ -604,9 +608,9 @@ class BlockingTestClient(client.BlockingClient):
         success = False
 
         if sensortype == float:
-            cmpfun = lambda got, exp: abs(got - exp) < 10 ** -places
+            def cmpfun(got, exp): return abs(got - exp) < 10 ** -places
         else:
-            cmpfun = lambda got, exp: got == exp
+            def cmpfun(got, exp): return got == exp
 
         lastval = self.get_sensor_value(sensorname, sensortype)
         while time.time() < stoptime:
@@ -711,7 +715,6 @@ class BlockingTestClient(client.BlockingClient):
         else:
             got_requests = [name for (name, desc) in got_requests]
             expected_requests = [native_str_to_bytes(name) for name in expected_requests]
-
 
         got_set = set(got_requests)
         expected_set = set(expected_requests)
@@ -1048,6 +1051,7 @@ class DeviceTestServer(DeviceServer):
         t0 = time.time()
         wait_time = float(msg.arguments[0])
         fut = self._slow_futures[req.client_connection] = Future()
+
         @tornado.gen.coroutine
         def slow_timeout():
             try:
@@ -1173,7 +1177,7 @@ class DeviceTestServerWithTimeoutHints(DeviceTestServer):
         ProtocolFlags.MULTI_CLIENT,
         ProtocolFlags.MESSAGE_IDS,
         ProtocolFlags.REQUEST_TIMEOUT_HINTS
-        ]))
+    ]))
 
     def __init__(self, *args, **kwargs):
         super(DeviceTestServerWithTimeoutHints, self).__init__(*args, **kwargs)
@@ -1190,8 +1194,6 @@ class DeviceTestServerWithTimeoutHints(DeviceTestServer):
         for req_name, timeout_hint in hints.items():
             req.inform(req_name, timeout_hint)
         return ('ok', len(hints))
-
-
 
 
 class SensorComparisonMixin(object):
@@ -1321,7 +1323,7 @@ class SensorComparisonMixin(object):
                 actual_sensor_dict[name], list(desired_info.keys()))
 
         self.maxDiff = None     # Make unittest print differences even
-                                # if they are large
+        # if they are large
         self.assertEqual(actual_description_dict, desired_description_dict)
 
     def assert_sensors_value_conditions(self, actual_sensors, value_tests):
@@ -1338,7 +1340,7 @@ class SensorComparisonMixin(object):
         actual_sensor_dict = dict((s.name, s) for s in actual_sensors)
         # Check that all the requested sensors are present
         self.assertTrue(all(name in actual_sensor_dict
-                             for name in value_tests.keys()))
+                            for name in value_tests.keys()))
 
         for name, test in value_tests.items():
             test(actual_sensor_dict[name].value())
@@ -1346,6 +1348,7 @@ class SensorComparisonMixin(object):
 
 class TestUtilMixin(object):
     """Mixin class for making assertions about lists of KATCP messages."""
+
     def _assert_msgs_length(self, actual_msgs, expected_number):
         """Assert that the number of messages is as expected."""
         num_msgs = len(actual_msgs)
@@ -1549,6 +1552,7 @@ class SensorTransitionWaiter(object):
     For tests like this it is important to specify a timeout.
 
     """
+
     def __init__(self, sensor, value_sequence=None):
         self.sensor = sensor
         self.desired_value_sequence = value_sequence
@@ -1692,6 +1696,7 @@ class SensorTransitionWaiter(object):
 
 class SensorTransitionStatusWaiter(SensorTransitionWaiter):
     """Also check for sensor status transitions, not just value."""
+
     def _get_current_sensor_value(self):
         # Return (status, value) tuple
         return self.sensor.read()[1:]
@@ -1726,6 +1731,7 @@ def wait_sensor_async(sensor, value, status=None, ioloop=None):
     """
     ioloop = ioloop or tornado.ioloop.IOLoop.current()
     f = tornado_Future()
+
     class Observer(object):
         def update(self, sensor, reading):
             val_matched = reading.value == value
@@ -1738,6 +1744,7 @@ def wait_sensor_async(sensor, value, status=None, ioloop=None):
     sensor.attach(observer)
     ioloop.add_callback(observer.update, sensor, sensor.read())
     return f
+
 
 def start_thread_with_cleanup(test_instance, thread_object, timeout=1,
                               start_timeout=None):
@@ -1840,6 +1847,7 @@ class WaitingMock(mock.Mock):
         if self.call_count >= count and len(self.call_args_list) < count:
             raise RuntimeError("call_args_list not updated within timeout.")
 
+
 class AsyncWaitingMock(mock.Mock):
 
     def __init__(self, *args, **kwargs):
@@ -1936,11 +1944,12 @@ def mock_req(req_name, *args, **kwargs):
     req.make_reply.side_effect = lambda *args: Message.reply_to_request(
         req.msg, *args)
     f = req.reply_and_inform_msgs_future = tornado_Future()
+
     def reply_side_effect(*args):
         req.reply_msg = Message.reply_to_request(req.msg, *args)
         req.reply_and_inform_msgs_future.set_result((req.reply_msg, req.inform_msgs))
     req.reply.side_effect = reply_side_effect
-    req.inform.side_effect = lambda *args : req.inform_msgs.append(
+    req.inform.side_effect = lambda *args: req.inform_msgs.append(
         Message.reply_inform(req.msg, *args))
     return req
 
@@ -2000,6 +2009,7 @@ def call_in_ioloop(ioloop, fn, *args, **kwargs):
     f = Future()
     tf = tornado_Future()                 # for nice tracebacks
     ioloop.add_callback(tornado.gen.chain_future, tf, f)
+
     @tornado.gen.coroutine
     def cb():
         return fn(*args, **kwargs)
@@ -2022,10 +2032,12 @@ class TimewarpAsyncTestCase(tornado.testing.AsyncTestCase):
     Note: subclasses must call their super setUp() methods.
 
     """
+
     def get_new_ioloop(self):
         ioloop = super(TimewarpAsyncTestCase, self).get_new_ioloop()
         self.ioloop_time = 0
         ioloop.time = lambda: self.ioloop_time
+
         def set_ioloop_thread_id():
             self.ioloop_thread_id = get_ident()
         ioloop.add_callback(set_ioloop_thread_id)
@@ -2042,6 +2054,7 @@ class TimewarpAsyncTestCase(tornado.testing.AsyncTestCase):
         self.ioloop_time = new_time
         if wake_ioloop:
             return self.wake_ioloop()
+
 
 class TimewarpAsyncTestCaseTimeAdvancer(threading.Thread):
     def __init__(self, test_instance, quantum=0.05, rate=1000.):
@@ -2072,7 +2085,7 @@ class TimewarpAsyncTestCaseTimeAdvancer(threading.Thread):
                 break
             f.result()
             self._f = f = Future()
-            time.sleep(1./self.rate)
+            time.sleep(1. / self.rate)
 
     @tornado.gen.coroutine
     def _advance(self, future):
