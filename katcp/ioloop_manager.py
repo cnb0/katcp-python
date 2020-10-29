@@ -175,7 +175,7 @@ class IOLoopManager(object):
             raise RuntimeError('Cannot join if not started')
 
 class IOLoopThreadWrapper(object):
-    default_timeout = None
+    default_timeout = 5
 
     def __init__(self, ioloop=None):
         self.ioloop = ioloop = ioloop or tornado.ioloop.IOLoop.current()
@@ -194,7 +194,7 @@ class IOLoopThreadWrapper(object):
             return future.result(timeout)
         except TimeoutError:
             raise
-        except Exception:
+        except Exception as exc:
             # If we have an exception use the tornado future instead since it
             # will print a nicer traceback.
             tornado_future.result()
