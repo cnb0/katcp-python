@@ -183,7 +183,7 @@ class IOLoopThreadWrapper(object):
         ioloop.add_callback(self._install)
 
     def call_in_ioloop(self, fn, args, kwargs, timeout=None):
-        timeout = timeout or 5.0
+        timeout = timeout or self.default_timeout
         if get_thread_ident() == self._thread_id:
             raise RuntimeError("Cannot call a thread-wrapped object from the ioloop")
         future, tornado_future = Future(), tornado_Future()
