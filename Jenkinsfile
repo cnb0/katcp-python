@@ -1,5 +1,5 @@
 pipeline {
-    
+    agent any
     environment {
         KATPACKAGE = "${(env.JOB_NAME - env.JOB_BASE_NAME) - '-multibranch/'}"
     }
