@@ -1,8 +1,5 @@
 pipeline {
-    agent {
-        label 'cambase_bionic'
-    }
-
+    
     environment {
         KATPACKAGE = "${(env.JOB_NAME - env.JOB_BASE_NAME) - '-multibranch/'}"
     }
